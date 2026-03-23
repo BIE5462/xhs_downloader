@@ -43,6 +43,13 @@ playwright install chromium
 |---|---|
 | `pip install -e .[runtime]` | 安装项目本身以及运行时依赖 |
 | `playwright install chromium` | 安装浏览器内核，供登录与页面抓取使用 |
+ 
+如果你需要使用 PySide6 桌面工作台，请额外安装桌面端依赖：
+
+| 命令 | 说明 |
+|---|---|
+| `pip install -e .[desktop]` | 安装桌面端依赖 `PySide6` |
+| `pip install -e .[runtime,desktop]` | 一次性安装 CLI 抓取能力和桌面端能力 |
 
 如果你只是查看命令帮助、运行部分本地测试，不一定立即需要 Playwright；但只要涉及真实登录或抓取，就必须安装。
 
@@ -62,6 +69,11 @@ playwright install chromium
 | `db_path` | `runtime/xhs.sqlite3` | SQLite 状态数据库路径 |
 | `download_root` | `downloads` | 图片下载根目录 |
 | `headless` | `false` | 是否无头模式，登录时建议保持 `false` |
+| `detail_delay_ms` | `1500` | 抓取单条笔记详情前的基础等待时间，单位毫秒 |
+| `download_delay_ms` | `1200` | 下载每张图片前的基础等待时间，单位毫秒 |
+| `request_jitter_ms` | `400` | 详情抓取和图片下载时叠加的随机抖动，单位毫秒 |
+| `download_transport` | `browser_context` | 图片下载通道，默认复用浏览器登录态和 Cookie |
+| `protection_mode` | `pause` | 命中风控后的处理模式，当前默认暂停并等待人工恢复 |
 | `crawl_delay_ms` | `1200` | 页面抓取节流间隔 |
 | `max_retries` | `3` | 下载失败最大重试次数 |
 | `download_timeout` | `30` | 单个图片下载超时时间，单位秒 |
@@ -94,6 +106,31 @@ python -m xhs_downloader --help
 
 ```bash
 xhs --help
+```
+
+### 桌面端工作台启动
+
+安装桌面端依赖后，可以直接使用下面任一方式启动：
+
+```powershell
+xhs-desktop --config config.toml
+```
+
+```powershell
+python -m xhs_downloader.desktop.entry --config config.toml
+```
+
+| 项目 | 说明 |
+|---|---|
+| 推荐命令 | `xhs-desktop --config config.toml` |
+| 常用参数 | `--config` 指定配置文件；`--verbose` 开启详细日志 |
+| 首次使用 | 若当前没有登录态，先点击“开始登录”，浏览器登录完成后回到工作台点击“已完成登录并保存” |
+| 适用场景 | 图形化查看任务历史、命中笔记、失败任务，并在界面内执行恢复下载 |
+
+示例：
+
+```powershell
+xhs-desktop --config config.toml --verbose
 ```
 
 ## 五、首次登录
@@ -161,7 +198,7 @@ python -m xhs_downloader search preview --keyword 穿搭 --pages 3 --min-likes 5
 
 ```powershell
 $env:PYTHONPATH='src'
-python -m xhs_downloader search run --keyword 穿搭 --pages 3 --min-likes 500 --min-comments 20
+python -m xhs_downloader search run --keyword 穿搭 --pages 2 --min-likes 500 --min-comments 20
 ```
 
 如果你希望指定下载目录：
@@ -335,6 +372,8 @@ playwright install chromium
 
 ### 5. 下载失败
 
+如果下载阶段触发“访问验证”“请求过于频繁”或图片响应变成验证页，任务会被标记为风控暂停，不会继续硬跑后续图片。此时可以稍后使用 `xhs tasks resume --run-id <ID>` 继续恢复未完成任务。
+
 常见原因：
 
 | 原因 | 说明 |
@@ -360,7 +399,7 @@ playwright install chromium
 | 合规使用 | 仅用于处理你有权访问和使用的内容 |
 | 页面结构依赖 | 小红书页面结构变化后，抓取逻辑可能需要更新 |
 | 当前版本边界 | 当前版本聚焦关键词搜索、筛选、图片下载，不包含视频下载 |
-| 反爬风险 | 若访问过快或频繁，平台可能要求验证或限制访问 |
+| 反爬风险 | 若访问过快或频繁，平台可能要求验证或限制访问；当前版本会自动识别风控页面并暂停任务，避免把问题扩大 |
 
 ## 十五、相关文档
 

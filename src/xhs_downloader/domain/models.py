@@ -12,6 +12,7 @@ class JobStatus(str, Enum):
     FAILED = "failed"
     PARTIAL = "partial"
     BLOCKED_AUTH = "blocked_auth"
+    BLOCKED_RISK = "blocked_risk"
 
 
 class TaskStatus(str, Enum):
@@ -224,4 +225,3 @@ def download_task_from_dict(data: Dict[str, Any]) -> DownloadTask:
         local_path=data.get("local_path", ""),
         error_message=data.get("error_message", ""),
     )
-

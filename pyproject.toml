@@ -18,13 +18,19 @@ runtime = [
   "playwright>=1.45.0",
   "tomli>=2.0.1; python_version < '3.11'",
 ]
+desktop = [
+  "PySide6>=6.7.0",
+]
+build = [
+  "pyinstaller>=6.10.0",
+]
 
 [project.scripts]
 xhs = "xhs_downloader.cli:main"
+xhs-desktop = "xhs_downloader.desktop.entry:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-

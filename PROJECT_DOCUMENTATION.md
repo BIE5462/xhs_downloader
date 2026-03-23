@@ -6,7 +6,7 @@
 |---|---|
 | 核心目标 | 输入关键词，搜索相关笔记，按点赞数与评论数筛选，自动下载命中笔记的图片并保存元数据 |
 | 交付形态 | `CLI + 可复用核心库` |
-| 当前实现 | 已完成工程骨架、领域模型、SQLite 状态管理、登录/搜索/筛选/下载主流程、任务恢复与基础测试 |
+| 当前实现 | 已完成工程骨架、领域模型、SQLite 状态管理、登录/搜索/筛选/下载主流程、任务恢复与基础测试；图片默认改为浏览器同会话下载，并加入页面保活与风控暂停机制 |
 | 运行环境 | Python `3.9+`，真实站点抓取依赖 `Playwright` |
 | 输出范围 | 当前版本默认只下载图片与元数据，不处理视频 |
 
@@ -53,6 +53,18 @@ pip install -e .[runtime]
 playwright install chromium
 ```
 
+如果希望使用桌面工作台而不是仅使用 CLI，可以额外安装桌面端依赖：
+
+```powershell
+pip install -e .[desktop]
+```
+
+如果既要抓取能力又要桌面界面，建议统一安装：
+
+```powershell
+pip install -e .[runtime,desktop]
+```
+
 ### 2. 准备配置
 
 复制 `config.toml.example` 为 `config.toml`，按需修改路径和运行参数。
@@ -61,6 +73,31 @@ playwright install chromium
 
 ```bash
 python -m xhs_downloader login
+```
+
+### 启动桌面端工作台
+
+安装桌面端依赖后，可以使用下面任一方式启动：
+
+```powershell
+xhs-desktop --config config.toml
+```
+
+```powershell
+python -m xhs_downloader.desktop.entry --config config.toml
+```
+
+| 项目 | 说明 |
+|---|---|
+| 首次进入 | 如果没有现成登录态，先点击“开始登录” |
+| 登录确认 | 浏览器完成登录后，回到工作台点击“已完成登录并保存” |
+| 常用参数 | `--config` 指定配置文件；`--verbose` 输出详细日志 |
+| 主要用途 | 图形化查看任务历史、任务详情、失败任务并触发恢复下载 |
+
+示例：
+
+```powershell
+xhs-desktop --config config.toml --verbose
 ```
 
 浏览器打开后手动完成登录，回到终端按回车保存登录态。
@@ -91,6 +128,5 @@ python -m xhs_downloader search run --keyword 穿搭 --pages 3 --min-likes 500 -
 | 项目 | 说明 |
 |---|---|
 | 页面结构依赖 | 小红书网页结构调整后，可能需要更新 `browser.py` 中的选择器和解析逻辑 |
-| 反爬限制 | 当前版本只做了基础节流与失败记录，没有实现复杂风控规避策略 |
+| 反爬限制 | 当前版本采用浏览器同会话下载、延时抖动、验证页识别与保护模式暂停；若命中风控会中止当前任务并等待 `xhs tasks resume` 恢复 |
 | 评论数准确性 | 搜索结果卡片未必总能直接拿到评论数，若摘要缺失，详情页补全阶段会尽量纠正 |
-

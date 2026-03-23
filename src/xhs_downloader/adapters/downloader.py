@@ -25,15 +25,20 @@ class ImageDownloader:
             return target_path
 
         last_error = None
+        temp_path = Path(f"{target_path}.part")
         headers = {"User-Agent": self._config.user_agent, "Referer": "https://www.xiaohongshu.com/"}
         for attempt in range(self._config.max_retries + 1):
             try:
                 request = urllib.request.Request(task.source_url, headers=headers)
                 with urllib.request.urlopen(request, timeout=self._config.download_timeout) as response:
+                    content_type = response.headers.get_content_type().lower()
                     content = response.read()
                 if not content:
                     raise DownloadError("下载内容为空")
-                target_path.write_bytes(content)
+                if not content_type.startswith("image/"):
+                    raise DownloadError(f"图片资源不可用: content_type={content_type}, url={task.source_url}")
+                temp_path.write_bytes(content)
+                temp_path.replace(target_path)
                 return target_path
             except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError) as exc:
                 last_error = exc
@@ -45,5 +50,11 @@ class ImageDownloader:
                 )
                 if attempt < self._config.max_retries:
                     time.sleep(min(2 ** attempt, 5))
+            finally:
+                if temp_path.exists():
+                    try:
+                        temp_path.unlink()
+                    except OSError:
+                        self._logger.debug("临时文件清理失败: %s", temp_path, exc_info=True)
 
         raise DownloadError(f"下载失败: {task.source_url} - {last_error}")

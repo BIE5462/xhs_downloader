@@ -10,8 +10,12 @@ headless = false
 crawl_delay_ms = 1200
 search_page_wait_ms = 2000
 note_detail_wait_ms = 1800
+detail_delay_ms = 1500
+download_delay_ms = 1200
+request_jitter_ms = 400
+download_transport = "browser_context"
+protection_mode = "pause"
 max_retries = 3
 download_timeout = 30
 screenshot_on_failure = true
 user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-

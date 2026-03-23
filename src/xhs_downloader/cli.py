@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import argparse
-from typing import Any, Dict, Optional
+import sys
+from typing import Any, Dict, Optional, TextIO
 
 from .adapters.browser import PlaywrightBrowserClient
 from .adapters.downloader import ImageDownloader
@@ -79,6 +80,27 @@ def build_services(config_path: str) -> Dict[str, Any]:
     }
 
 
+def _write_console_text(text: str, stream: Optional[TextIO] = None) -> None:
+    stream = stream or sys.stdout
+    payload = text if text.endswith("\n") else f"{text}\n"
+    try:
+        stream.write(payload)
+    except UnicodeEncodeError:
+        encoding = getattr(stream, "encoding", None) or "utf-8"
+        try:
+            encoded = payload.encode(encoding, errors="backslashreplace")
+        except LookupError:
+            encoding = "utf-8"
+            encoded = payload.encode(encoding, errors="backslashreplace")
+        buffer = getattr(stream, "buffer", None)
+        if buffer is not None:
+            buffer.write(encoded)
+        else:
+            stream.write(encoded.decode(encoding, errors="strict"))
+    if hasattr(stream, "flush"):
+        stream.flush()
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -94,7 +116,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     try:
         if args.command == "login":
             session = auth_service.login(profile_dir=args.profile_dir or None)
-            print(dump_json({"session": session}))
+            _write_console_text(dump_json({"session": session}))
             return 0
 
         if args.command == "search":
@@ -106,7 +128,7 @@ def main(argv: Optional[list[str]] = None) -> int:
                     min_likes=args.min_likes,
                     min_comments=args.min_comments,
                 )
-                print(dump_json(result))
+                _write_console_text(dump_json(result))
                 return 0
 
             if args.search_command == "run":
@@ -118,27 +140,27 @@ def main(argv: Optional[list[str]] = None) -> int:
                     min_comments=args.min_comments,
                     output_dir=args.output_dir or None,
                 )
-                print(dump_json(result))
+                _write_console_text(dump_json(result))
                 return 0
 
         if args.command == "tasks":
             if args.tasks_command == "resume":
                 result = workflow.resume(args.run_id)
-                print(dump_json(result))
+                _write_console_text(dump_json(result))
                 return 0
 
             if args.tasks_command == "list":
                 result = workflow.list_jobs(limit=args.limit)
-                print(dump_json(result))
+                _write_console_text(dump_json(result))
                 return 0
 
         if args.command == "status":
             result = workflow.status(run_id=args.run_id or None)
-            print(dump_json(result))
+            _write_console_text(dump_json(result))
             return 0
 
         parser.print_help()
         return 1
     except XHSError as exc:
-        print(str(exc))
+        _write_console_text(str(exc))
         return 2

@@ -4,4 +4,35 @@ __pycache__/
 .venv/
 runtime/
 downloads/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Misc
+*.pyo
+*.pyd
+*.so
+*.dll
+*.exe
 

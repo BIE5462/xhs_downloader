@@ -24,8 +24,13 @@ class AppConfig:
     crawl_delay_ms: int
     search_page_wait_ms: int
     note_detail_wait_ms: int
+    detail_delay_ms: int
+    download_delay_ms: int
+    request_jitter_ms: int
     max_retries: int
     download_timeout: int
+    download_transport: str
+    protection_mode: str
     screenshot_on_failure: bool
     user_agent: str
 
@@ -117,8 +122,15 @@ def load_config(config_path: Optional[str] = None) -> AppConfig:
     crawl_delay_ms = int(os.getenv("XHS_CRAWL_DELAY_MS", runtime.get("crawl_delay_ms", 1200)))
     search_page_wait_ms = int(os.getenv("XHS_SEARCH_PAGE_WAIT_MS", runtime.get("search_page_wait_ms", 2000)))
     note_detail_wait_ms = int(os.getenv("XHS_NOTE_DETAIL_WAIT_MS", runtime.get("note_detail_wait_ms", 1800)))
+    detail_delay_ms = int(os.getenv("XHS_DETAIL_DELAY_MS", runtime.get("detail_delay_ms", 1500)))
+    download_delay_ms = int(os.getenv("XHS_DOWNLOAD_DELAY_MS", runtime.get("download_delay_ms", 1200)))
+    request_jitter_ms = int(os.getenv("XHS_REQUEST_JITTER_MS", runtime.get("request_jitter_ms", 400)))
     max_retries = int(os.getenv("XHS_MAX_RETRIES", runtime.get("max_retries", 3)))
     download_timeout = int(os.getenv("XHS_DOWNLOAD_TIMEOUT", runtime.get("download_timeout", 30)))
+    download_transport = str(
+        os.getenv("XHS_DOWNLOAD_TRANSPORT", runtime.get("download_transport", "browser_context"))
+    ).strip() or "browser_context"
+    protection_mode = str(os.getenv("XHS_PROTECTION_MODE", runtime.get("protection_mode", "pause"))).strip() or "pause"
     screenshot_on_failure = _bool_from_env(
         os.getenv("XHS_SCREENSHOT_ON_FAILURE"),
         bool(runtime.get("screenshot_on_failure", True)),
@@ -142,8 +154,13 @@ def load_config(config_path: Optional[str] = None) -> AppConfig:
         crawl_delay_ms=crawl_delay_ms,
         search_page_wait_ms=search_page_wait_ms,
         note_detail_wait_ms=note_detail_wait_ms,
+        detail_delay_ms=detail_delay_ms,
+        download_delay_ms=download_delay_ms,
+        request_jitter_ms=request_jitter_ms,
         max_retries=max_retries,
         download_timeout=download_timeout,
+        download_transport=download_transport,
+        protection_mode=protection_mode,
         screenshot_on_failure=screenshot_on_failure,
         user_agent=user_agent,
     )
