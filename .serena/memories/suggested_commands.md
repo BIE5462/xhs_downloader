@@ -1,0 +1,11 @@
+# 常用命令
+- 运行帮助：`$env:PYTHONPATH='src'; python -m xhs_downloader --help`
+- 登录：`$env:PYTHONPATH='src'; python -m xhs_downloader login`
+- 搜索预览：`$env:PYTHONPATH='src'; python -m xhs_downloader search preview --keyword 穿搭 --pages 3 --min-likes 500 --min-comments 20`
+- 搜索并下载：`$env:PYTHONPATH='src'; python -m xhs_downloader search run --keyword 穿搭 --pages 3 --min-likes 500 --min-comments 20`
+- 查看任务：`$env:PYTHONPATH='src'; python -m xhs_downloader tasks list`
+- 查看状态：`$env:PYTHONPATH='src'; python -m xhs_downloader status`
+- 恢复任务：`$env:PYTHONPATH='src'; python -m xhs_downloader tasks resume --run-id <RUN_ID>`
+- 运行测试：`python -m unittest discover -s tests -v`
+- 语法编译检查：`python -m compileall src`
+- Playwright 依赖安装：`pip install -e .[runtime]` 和 `playwright install chromium`

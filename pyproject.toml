@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xhs-keyword-downloader"
+version = "0.1.0"
+description = "小红书关键词搜索、筛选与图片下载 CLI 工具"
+readme = "PROJECT_DOCUMENTATION.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "OpenAI Codex" }
+]
+dependencies = []
+
+[project.optional-dependencies]
+runtime = [
+  "playwright>=1.45.0",
+  "tomli>=2.0.1; python_version < '3.11'",
+]
+
+[project.scripts]
+xhs = "xhs_downloader.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

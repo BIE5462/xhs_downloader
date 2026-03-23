@@ -1,0 +1,17 @@
+[paths]
+data_dir = "runtime"
+browser_profile_dir = "runtime/browser-profile"
+storage_state_path = "runtime/storage_state.json"
+db_path = "runtime/xhs.sqlite3"
+download_root = "downloads"
+
+[runtime]
+headless = false
+crawl_delay_ms = 1200
+search_page_wait_ms = 2000
+note_detail_wait_ms = 1800
+max_retries = 3
+download_timeout = 30
+screenshot_on_failure = true
+user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+
